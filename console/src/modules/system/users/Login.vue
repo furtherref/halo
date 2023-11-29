@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { computed, watch } from "vue";
-import IconLogo from "~icons/core/logo?width=5rem&height=2rem";
 import LoginForm from "@/components/login/LoginForm.vue";
 import { useRouteQuery } from "@vueuse/router";
 import SignupForm from "@/components/signup/SignupForm.vue";
@@ -43,7 +42,7 @@ watch(
 </script>
 <template>
   <div class="flex h-screen flex-col items-center bg-white/90 pt-[30vh]">
-    <IconLogo class="mb-8" />
+    <div class="pb-3 pt-3 text-xl">{{ AppName }}</div>
     <div class="flex w-72 flex-col">
       <SignupForm v-if="type === 'signup'" @succeed="onLoginSucceed" />
       <LoginForm v-else @succeed="onLoginSucceed" />

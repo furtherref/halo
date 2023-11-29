@@ -30,6 +30,7 @@ import { useUserStore } from "@/stores/user";
 import { rbacAnnotations } from "@/constants/annotations";
 import { defineStore, storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
+import { AppName } from "@/constants/app";
 import {
   useOverlayScrollbars,
   type UseOverlayScrollbarsParams,
@@ -230,15 +231,16 @@ onMounted(() => {
     <aside
       class="navbar fixed hidden h-full overflow-y-auto md:flex md:flex-col"
     >
-      <div class="logo flex justify-center pb-7 pt-5">
+      <div class="logo flex items-center justify-center pb-3 pt-3">
+        <IconLogo
+          class="mr-2 h-8 w-8 cursor-pointer select-none transition-all hover:brightness-125"
+        />
         <a
           href="/"
           target="_blank"
           :title="$t('core.sidebar.operations.visit_homepage.title')"
         >
-          <IconLogo
-            class="cursor-pointer select-none transition-all hover:brightness-125"
-          />
+          {{ AppName }}
         </a>
       </div>
       <div ref="navbarScroller" class="flex-1 overflow-y-hidden">
