@@ -4,7 +4,7 @@
       <IconDashboard class="mr-2 self-center" />
     </template>
     <template #actions>
-      <VSpace>
+      <VSpace v-if="currentRoles?.[0]?.metadata.name === SUPER_ROLE_NAME">
         <VButton v-if="settings" @click="widgetsModal = true">
           <template #icon>
             <IconAddCircle class="h-full w-full" />
@@ -128,9 +128,14 @@ import { apiClient } from "@/utils/api-client";
 import type { DashboardStats } from "@halo-dev/api-client";
 import { useI18n } from "vue-i18n";
 import { usePermission } from "@/utils/permission";
+import { useUserStore } from "@/stores/user";
+import { GUEST_ROLE_NAME, SUPER_ROLE_NAME } from "@/constants/constants";
 
 const { t } = useI18n();
 const { currentUserHasPermission } = usePermission();
+
+// 获取当前用户角色
+const { currentRoles } = useUserStore();
 
 const widgetsGroup = [
   {
@@ -196,57 +201,82 @@ const settings = ref(false);
 const widgetsModal = ref(false);
 const activeId = ref(widgetsGroup[0].id);
 
-const layout = useStorage("widgets", [
-  {
-    x: 0,
-    y: 0,
-    w: 3,
-    h: 3,
-    i: 0,
-    widget: "PostStatsWidget",
-  },
-  {
-    x: 3,
-    y: 0,
-    w: 3,
-    h: 3,
-    i: 1,
-    widget: "UserStatsWidget",
-  },
-  {
-    x: 6,
-    y: 0,
-    w: 3,
-    h: 3,
-    i: 2,
-    widget: "CommentStatsWidget",
-  },
-  {
-    x: 9,
-    y: 0,
-    w: 3,
-    h: 3,
-    i: 3,
-    widget: "ViewsStatsWidget",
-  },
-  {
-    x: 0,
-    y: 3,
-    w: 6,
-    h: 12,
-    i: 4,
-    widget: "QuickLinkWidget",
-  },
-  {
-    x: 6,
-    y: 3,
-    w: 6,
-    h: 12,
-    i: 5,
-    widget: "NotificationWidget",
-    permissions: [],
-  },
-]);
+const layout = useStorage(
+  "widgets",
+  !currentRoles ||
+    currentRoles.length === 0 ||
+    currentRoles[0].metadata.name === GUEST_ROLE_NAME
+    ? [
+        {
+          x: 0,
+          y: 3,
+          w: 6,
+          h: 12,
+          i: 1,
+          widget: "QuickLinkWidget",
+        },
+        {
+          x: 6,
+          y: 3,
+          w: 6,
+          h: 12,
+          i: 2,
+          widget: "NotificationWidget",
+          permissions: [],
+        },
+      ]
+    : [
+        {
+          x: 0,
+          y: 0,
+          w: 3,
+          h: 3,
+          i: 0,
+          widget: "PostStatsWidget",
+        },
+        {
+          x: 3,
+          y: 0,
+          w: 3,
+          h: 3,
+          i: 1,
+          widget: "UserStatsWidget",
+        },
+        {
+          x: 6,
+          y: 0,
+          w: 3,
+          h: 3,
+          i: 2,
+          widget: "CommentStatsWidget",
+        },
+        {
+          x: 9,
+          y: 0,
+          w: 3,
+          h: 3,
+          i: 3,
+          widget: "ViewsStatsWidget",
+        },
+        {
+          x: 0,
+          y: 3,
+          w: 6,
+          h: 12,
+          i: 4,
+          widget: "QuickLinkWidget",
+        },
+        {
+          x: 6,
+          y: 3,
+          w: 6,
+          h: 12,
+          i: 5,
+          widget: "NotificationWidget",
+          permissions: [],
+        },
+      ]
+);
 
 // eslint-disable-next-line
 function handleAddWidget(widget: any) {

@@ -18,6 +18,7 @@ import AnnotationsForm from "@/components/form/AnnotationsForm.vue";
 import { useUserStore } from "@/stores/user";
 import { useI18n } from "vue-i18n";
 import { useQueryClient } from "@tanstack/vue-query";
+import { SUPER_ROLE_NAME } from "@/constants/constants";
 
 const userStore = useUserStore();
 const { t } = useI18n();
@@ -197,7 +198,10 @@ const handleUpdateUser = async () => {
       <div class="border-t border-gray-200"></div>
     </div>
 
-    <div class="md:grid md:grid-cols-4 md:gap-6">
+    <div
+      v-if="userStore.currentRoles?.[0]?.metadata.name === SUPER_ROLE_NAME"
+      class="md:grid md:grid-cols-4 md:gap-6"
+    >
       <div class="md:col-span-1">
         <div class="sticky top-0">
           <span class="text-base font-medium text-gray-900">

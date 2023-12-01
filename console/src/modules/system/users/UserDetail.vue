@@ -33,6 +33,7 @@ import DetailTab from "./tabs/Detail.vue";
 import PersonalAccessTokensTab from "./tabs/PersonalAccessTokens.vue";
 import { useRouteQuery } from "@vueuse/router";
 import NotificationPreferences from "./tabs/NotificationPreferences.vue";
+import { SUPER_ROLE_NAME } from "@/constants/constants";
 
 const { currentUserHasPermission } = usePermission();
 const userStore = useUserStore();
@@ -104,29 +105,40 @@ const isCurrentUser = computed(() => {
 provide<Ref<DetailedUser | undefined>>("user", user);
 provide<ComputedRef<boolean>>("isCurrentUser", isCurrentUser);
 
+// 获取当前用户角色
+const { currentRoles } = useUserStore();
+
 const tabs = computed((): UserTab[] => {
-  return [
+  const initTabs = [
     {
       id: "detail",
       label: t("core.user.detail.tabs.detail"),
       component: markRaw(DetailTab),
       priority: 10,
     },
-    {
-      id: "notification-preferences",
-      label: t("core.user.detail.tabs.notification-preferences"),
-      component: markRaw(NotificationPreferences),
-      priority: 20,
-      hidden: !isCurrentUser.value,
-    },
-    {
-      id: "pat",
-      label: t("core.user.detail.tabs.pat"),
-      component: markRaw(PersonalAccessTokensTab),
-      priority: 30,
-      hidden: !isCurrentUser.value,
-    },
   ];
+
+  // 如果是超级管理员，加入通知设置和个人令牌选项卡
+  if (currentRoles?.[0]?.metadata.name === SUPER_ROLE_NAME) {
+    initTabs.push(
+      {
+        id: "notification-preferences",
+        label: t("core.user.detail.tabs.notification-preferences"),
+        component: markRaw(NotificationPreferences),
+        priority: 20,
+        hidden: !isCurrentUser.value,
+      },
+      {
+        id: "pat",
+        label: t("core.user.detail.tabs.pat"),
+        component: markRaw(PersonalAccessTokensTab),
+        priority: 30,
+        hidden: !isCurrentUser.value,
+      }
+    );
+  }
+
+  return initTabs;
 });
 
 const activeTab = useRouteQuery<string>("tab", tabs.value[0].id, {

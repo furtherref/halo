@@ -23,6 +23,7 @@ export default definePlugin({
               icon: markRaw(IconTerminalBoxLine),
               priority: 3,
             },
+            permissions: ["system:actuator:view"],
           },
         },
       ],

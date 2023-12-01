@@ -10,19 +10,28 @@ import {
 import type { ComputedRef, Ref } from "vue";
 import { inject, computed } from "vue";
 import { useRouter } from "vue-router";
-import type { DetailedUser, ListedAuthProvider } from "@halo-dev/api-client";
+import { useUserStore } from "@/stores/user";
+import type {
+  DetailedUser,
+  ListedAuthProvider,
+  Role,
+} from "@halo-dev/api-client";
 import { rbacAnnotations } from "@/constants/annotations";
 import { formatDatetime } from "@/utils/date";
 import { useQuery } from "@tanstack/vue-query";
 import { apiClient } from "@/utils/api-client";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
+import { SUPER_ROLE_NAME } from "@/constants/constants";
 
 const user = inject<Ref<DetailedUser | undefined>>("user");
 const isCurrentUser = inject<ComputedRef<boolean>>("isCurrentUser");
 
 const router = useRouter();
 const { t } = useI18n();
+
+// 获取当前用户角色
+const { currentRoles } = useUserStore();
 
 const { data: authProviders, isFetching } = useQuery<ListedAuthProvider[]>({
   queryKey: ["user-auth-providers"],
@@ -67,6 +76,16 @@ const handleBindAuth = (authProvider: ListedAuthProvider) => {
     authProvider.bindingUrl
   }?redirect_uri=${encodeURIComponent(window.location.href)}`;
 };
+
+const viewRoleDetail = (role: Role) => {
+  // 只有超级管理员才可以查看角色
+  if (currentRoles?.[0]?.metadata.name === SUPER_ROLE_NAME) {
+    router.push({
+      name: "RoleDetail",
+      params: { name: role.metadata.name },
+    });
+  }
+};
 </script>
 <template>
   <div class="border-t border-gray-100">
@@ -93,12 +112,7 @@ const handleBindAuth = (authProvider: ListedAuthProvider) => {
         <VTag
           v-for="(role, index) in user?.roles"
           :key="index"
-          @click="
-            router.push({
-              name: 'RoleDetail',
-              params: { name: role.metadata.name },
-            })
-          "
+          @click="viewRoleDetail(role)"
         >
           <template #leftIcon>
             <IconUserSettings />
